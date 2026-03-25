@@ -82,7 +82,8 @@ export default function ChatRoomPage() {
             setMessages((prev) => prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]);
             const curId = profile?.id ?? user?.id;
             if (msg.profiles?.id !== curId) {
-              addToast(`${msg.profiles?.nickname ?? '상대방'}: ${msg.content || '📷 이미지'}`, 'message');
+              const preview = msg.is_private ? '🔒 스텔스 메시지' : (msg.content || '📷 이미지');
+              addToast(`${msg.profiles?.nickname ?? '상대방'}: ${preview}`, 'message');
             }
           }
         }

@@ -4,14 +4,13 @@
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-// ⚠️ 아래 값을 실제 Firebase 프로젝트 설정으로 교체하세요
 firebase.initializeApp({
-  apiKey:            '__VITE_FIREBASE_API_KEY__',
-  authDomain:        '__VITE_FIREBASE_AUTH_DOMAIN__',
-  projectId:         '__VITE_FIREBASE_PROJECT_ID__',
-  storageBucket:     '__VITE_FIREBASE_STORAGE_BUCKET__',
-  messagingSenderId: '__VITE_FIREBASE_MESSAGING_SENDER_ID__',
-  appId:             '__VITE_FIREBASE_APP_ID__',
+  apiKey:            'AIzaSyCwMVOT9HPHgMRk6QTaa-5ihWS7_610dFk',
+  authDomain:        'hwadam-d756a.firebaseapp.com',
+  projectId:         'hwadam-d756a',
+  storageBucket:     'hwadam-d756a.firebasestorage.app',
+  messagingSenderId: '945811643179',
+  appId:             '1:945811643179:web:1d5d1af8bc35e9bdc6036e',
 });
 
 const messaging = firebase.messaging();
