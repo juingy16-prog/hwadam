@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 
 /**
  * avatar_url이 이모티콘 문자인지 URL인지 판별
@@ -33,7 +33,7 @@ function Avatar({ profile, size = 'sm' }) {
   );
 }
 
-export default function MessageBubble({ message, isMe }) {
+function MessageBubble({ message, isMe }) {
   const [revealed, setRevealed] = useState(false);
 
   const { content, image_url, is_private, emoji_color, created_at, profiles } = message;
@@ -98,3 +98,5 @@ export default function MessageBubble({ message, isMe }) {
     </div>
   );
 }
+
+export default memo(MessageBubble);

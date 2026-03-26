@@ -97,8 +97,8 @@ export async function getOrCreateRoom(code, userId) {
 /**
  * 특정 방의 최근 메시지 목록 조회 (최대 60개)
  */
-export async function fetchMessages(roomId, limit = 60) {
-  const { data, error } = await supabase
+export async function fetchMessages(roomId, limit = 60, before = null) {
+  let query = supabase
     .from('messages')
     .select(`
       id, content, image_url, is_private, emoji_color, created_at,
@@ -106,11 +106,14 @@ export async function fetchMessages(roomId, limit = 60) {
     `)
     .eq('room_id', roomId)
     .is('deleted_at', null)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })  // 최신 우선
     .limit(limit);
 
+  if (before) query = query.lt('created_at', before);  // 이전 메시지 페이지네이션
+
+  const { data, error } = await query;
   if (error) throw error;
-  return data;
+  return (data ?? []).reverse();  // 화면엔 오래된 순서로 표시
 }
 
 /**
