@@ -44,15 +44,19 @@ export default function AuthPage() {
       </div>
 
       <div className="relative w-full max-w-sm animate-fade-in">
-        {/* 로고 (6번 — 영문만, 크게) */}
+        {/* 로고 */}
         <div className="text-center mb-10">
           <h1 className="text-6xl font-bold tracking-tight text-white drop-shadow-lg">
             HWADAM
           </h1>
         </div>
 
+        {/* 카드 주변 ambient glow */}
+        <div className="absolute -inset-4 rounded-3xl bg-brand-600/8 blur-2xl pointer-events-none" />
+        <div className="absolute -inset-8 rounded-3xl bg-violet-700/6 blur-3xl pointer-events-none" />
+
         {/* 카드 */}
-        <div className="bg-zinc-900/70 border border-zinc-700/60 rounded-2xl p-8 shadow-2xl backdrop-blur-md ring-1 ring-brand-600/10">
+        <div className="relative bg-zinc-900/70 border border-zinc-700/60 rounded-2xl p-8 shadow-2xl backdrop-blur-md ring-1 ring-brand-600/10">
           {/* 탭 */}
           <div className="flex mb-8 bg-zinc-800/60 rounded-xl p-1">
             {['login', 'register'].map((m) => (

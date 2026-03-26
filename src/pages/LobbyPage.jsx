@@ -84,9 +84,17 @@ export default function LobbyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col">
-      {/* 헤더 (6번 — 영문만, 4번 — 다크/라이트 버튼 제거) */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/60">
+    <div className="min-h-screen bg-zinc-950 text-white flex flex-col overflow-hidden relative">
+
+      {/* 배경 ambient glow — AuthPage와 동일한 분위기 */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] rounded-full bg-brand-600/8 blur-[140px]" />
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-500/10 blur-[120px]" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-violet-700/10 blur-[120px]" />
+      </div>
+
+      {/* 헤더 */}
+      <header className="relative flex items-center justify-between px-6 py-4 border-b border-zinc-800/60">
         <h1 className="text-2xl font-bold tracking-tight text-white">HWADAM</h1>
         <div className="flex items-center gap-3">
           <button onClick={toggleNotifications} title={notifEnabled ? '알림 끄기' : '알림 켜기'}
@@ -101,7 +109,7 @@ export default function LobbyPage() {
       </header>
 
       {/* 본문 */}
-      <main className="flex-1 flex flex-col items-center justify-center p-6 gap-6">
+      <main className="relative flex-1 flex flex-col items-center justify-center p-6 gap-6">
         {/* 인사말 */}
         <div className="text-center space-y-1 animate-fade-in">
           <p className="text-zinc-400 text-sm">반가워요,</p>
