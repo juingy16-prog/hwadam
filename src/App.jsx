@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 // App.css 제거됨 — Tailwind만 사용
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
 import { NotificationProvider } from './contexts/NotificationContext';
 import AuthPage       from './pages/AuthPage';
 import LobbyPage      from './pages/LobbyPage';
@@ -57,13 +56,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <NotificationProvider>
-            <AppRoutes />
-          </NotificationProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <AppRoutes />
+        </NotificationProvider>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

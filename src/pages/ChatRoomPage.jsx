@@ -9,16 +9,7 @@ import MessageBubble from '../components/MessageBubble';
 import ImageUploader from '../components/ImageUploader';
 import Toast from '../components/Toast';
 import { ArrowLeft, Send, EyeOff, Eye, Bell, BellOff, Users } from 'lucide-react';
-
-const EMOJI_COLORS = {
-  '❤️':'#7f1d1d','🧡':'#7c2d12','💛':'#713f12','💚':'#14532d',
-  '💙':'#1e3a5f','💜':'#4c1d95','🖤':'#18181b','🤍':'#52525b',
-  '🔥':'#7c2d12','⭐':'#78350f','🎉':'#1e3a5f','✨':'#4c1d95',
-  '😊':'#14532d','😎':'#1e3a5f','😭':'#1e3a8a','🤬':'#7f1d1d',
-  '🤢':'#166534','🥸':'#78350f','🤡':'#991b1b','💩':'#78350f',
-  '😺':'#7c2d12','🐶':'#78350f','🦊':'#7c2d12','🐯':'#78350f','🐷':'#9d174d','🐻':'#44403c',
-  '👀':'#1c3a4a','🌞':'#78350f','🍚':'#44403c','🍎':'#7f1d1d',
-};
+import { EMOJI_COLORS } from '../constants/emoji';
 const DEFAULT_MY_COLOR = '#1e3a5f';
 const EMOJI_KEY = 'hwadam-profile-emoji';
 

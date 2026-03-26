@@ -4,22 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNotification } from '../contexts/NotificationContext';
 import { getOrCreateRoom, supabase } from '../utils/supabaseClient';
 import { Bell, BellOff, LogOut, X } from 'lucide-react';
-
-// 말풍선 이모티콘 목록 (ChatRoomPage와 동일)
-const EMOJI_LIST = [
-  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🔥','⭐','🎉','✨',
-  '😊','😎','😭','🤬','🤢','🥸','🤡','💩','😺','🐶','🦊','🐯','🐷','🐻',
-  '👀','🌞','🍚','🍎',
-];
-const EMOJI_COLORS = {
-  '❤️':'#7f1d1d','🧡':'#7c2d12','💛':'#713f12','💚':'#14532d',
-  '💙':'#1e3a5f','💜':'#4c1d95','🖤':'#18181b','🤍':'#52525b',
-  '🔥':'#7c2d12','⭐':'#78350f','🎉':'#1e3a5f','✨':'#4c1d95',
-  '😊':'#14532d','😎':'#1e3a5f','😭':'#1e3a8a','🤬':'#7f1d1d',
-  '🤢':'#166534','🥸':'#78350f','🤡':'#991b1b','💩':'#78350f',
-  '😺':'#7c2d12','🐶':'#78350f','🦊':'#7c2d12','🐯':'#78350f','🐷':'#9d174d','🐻':'#44403c',
-  '👀':'#1c3a4a','🌞':'#78350f','🍚':'#44403c','🍎':'#7f1d1d',
-};
+import { EMOJI_LIST, EMOJI_COLORS } from '../constants/emoji';
 
 const RECENT_KEY = 'hwadam-recent-rooms';
 const EMOJI_KEY  = 'hwadam-profile-emoji';
