@@ -8,7 +8,7 @@ import {
 import MessageBubble from '../components/MessageBubble';
 import ImageUploader from '../components/ImageUploader';
 import Toast from '../components/Toast';
-import { ArrowLeft, Send, EyeOff, Eye, Bell, BellOff, Users } from 'lucide-react';
+import { ArrowLeft, Send, EyeOff, Eye, Bell, BellOff, Users, ChevronDown } from 'lucide-react';
 import { EMOJI_COLORS } from '../constants/emoji';
 const DEFAULT_MY_COLOR = '#1e3a5f';
 const EMOJI_KEY = 'hwadam-profile-emoji';
@@ -29,18 +29,21 @@ export default function ChatRoomPage() {
   const [toasts, setToasts]             = useState([]);
   const [hasMore, setHasMore]           = useState(false);
   const [loadingMore, setLoadingMore]   = useState(false);
+  const [unreadNew, setUnreadNew]       = useState(0);
 
   const profileEmoji  = state?.profileEmoji ?? localStorage.getItem(EMOJI_KEY) ?? null;
   const myBubbleColor = EMOJI_COLORS[profileEmoji] ?? DEFAULT_MY_COLOR;
 
   const bottomRef       = useRef(null);
+  const mainRef         = useRef(null);
   const inputRef        = useRef(null);
   const channelRef      = useRef(null);
-  const profileCacheRef = useRef({});   // 프로필 캐시 — DB 중복 조회 방지
-  const justLoadedMore  = useRef(false); // 이전 메시지 로드 시 스크롤 방지
-  const isInitialLoad   = useRef(true);  // 최초 로드 여부
-  const oldestTsRef     = useRef(null);  // 페이지네이션 기준 타임스탬프
-  const presenceTimer   = useRef(null);  // presence 디바운스
+  const profileCacheRef = useRef({});
+  const justLoadedMore  = useRef(false);
+  const isInitialLoad   = useRef(true);
+  const oldestTsRef     = useRef(null);
+  const presenceTimer   = useRef(null);
+  const isNearBottom    = useRef(true);  // 스크롤이 하단 근처인지 여부
 
   // ─── 토스트 ────────────────────────────────────────────────
   const addToast = useCallback((msg, type = 'info') => {
@@ -132,14 +135,47 @@ export default function ChatRoomPage() {
     };
   }, [roomId, profile?.id, user?.id, addToast]);
 
+  // ─── 스크롤 위치 감지 ──────────────────────────────────────
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 80;
+      isNearBottom.current = nearBottom;
+      if (nearBottom) setUnreadNew(0);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
+
   // ─── 스크롤 제어 ────────────────────────────────────────────
-  // 이전 메시지 로드 시엔 스크롤 고정, 최초 로드는 instant, 신규 메시지는 smooth
   useEffect(() => {
     if (!messages.length) return;
     if (justLoadedMore.current) { justLoadedMore.current = false; return; }
-    bottomRef.current?.scrollIntoView({ behavior: isInitialLoad.current ? 'instant' : 'smooth' });
-    if (isInitialLoad.current) isInitialLoad.current = false;
-  }, [messages]);
+
+    if (isInitialLoad.current) {
+      bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+      isInitialLoad.current = false;
+      return;
+    }
+
+    const lastMsg = messages[messages.length - 1];
+    const isOwn = lastMsg?.profiles?.id === (profile?.id ?? user?.id);
+
+    if (isNearBottom.current || isOwn) {
+      // 하단 근처이거나 내가 보낸 메시지면 항상 스크롤
+      bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+      setUnreadNew(0);
+    } else {
+      // 위로 스크롤 중 — NEW 카운트만 올림
+      setUnreadNew((n) => n + 1);
+    }
+  }, [messages, profile?.id, user?.id]);
+
+  function scrollToLatest() {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setUnreadNew(0);
+  }
 
   // ─── 클립보드 붙여넣기 ─────────────────────────────────────
   useEffect(() => {
@@ -210,7 +246,7 @@ export default function ChatRoomPage() {
   return (
     <>
     <div
-      className="flex flex-col h-screen bg-zinc-950 text-white select-none"
+      className="relative flex flex-col h-screen bg-zinc-950 text-white select-none"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
@@ -234,7 +270,7 @@ export default function ChatRoomPage() {
       </header>
 
       {/* 메시지 리스트 */}
-      <main className="flex-1 overflow-y-auto px-4 py-4 space-y-2 scroll-smooth">
+      <main ref={mainRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-2 scroll-smooth relative">
         {/* 이전 메시지 더 보기 */}
         {hasMore && (
           <div className="flex justify-center py-1">
@@ -257,6 +293,17 @@ export default function ChatRoomPage() {
         ))}
         <div ref={bottomRef} />
       </main>
+
+      {/* NEW 뱃지 — 위로 스크롤 중 새 메시지 수신 시 */}
+      {unreadNew > 0 && (
+        <button
+          onClick={scrollToLatest}
+          className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-full shadow-xl transition-all animate-bounce"
+        >
+          NEW {unreadNew}
+          <ChevronDown className="w-3.5 h-3.5" />
+        </button>
+      )}
 
       {/* 이미지 미리보기 */}
       {imagePreview && (
