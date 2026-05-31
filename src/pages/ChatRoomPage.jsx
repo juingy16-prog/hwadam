@@ -30,6 +30,7 @@ export default function ChatRoomPage() {
   const [hasMore, setHasMore]           = useState(false);
   const [loadingMore, setLoadingMore]   = useState(false);
   const [unreadNew, setUnreadNew]       = useState(0);
+  const [replyTo, setReplyTo]           = useState(null);
 
   const profileEmoji  = state?.profileEmoji ?? localStorage.getItem(EMOJI_KEY) ?? null;
   const myBubbleColor = EMOJI_COLORS[profileEmoji] ?? DEFAULT_MY_COLOR;
@@ -43,7 +44,8 @@ export default function ChatRoomPage() {
   const isInitialLoad   = useRef(true);
   const oldestTsRef     = useRef(null);
   const presenceTimer   = useRef(null);
-  const isNearBottom    = useRef(true);  // 스크롤이 하단 근처인지 여부
+  const isNearBottom    = useRef(true);
+  const msgRefs         = useRef({});
 
   // ─── 토스트 ────────────────────────────────────────────────
   const addToast = useCallback((msg, type = 'info') => {
@@ -106,7 +108,18 @@ export default function ChatRoomPage() {
             if (p) { profileCacheRef.current[p.id] = p; prof = p; }
           }
 
-          const msg = { ...raw, profiles: prof };
+          // 답장 원본 메시지 조회
+          let replyToMsg = null;
+          if (raw.reply_to_id) {
+            const { data: rt } = await supabase
+              .from('messages')
+              .select('id, content, image_url, profiles:sender_id ( id, nickname, avatar_url )')
+              .eq('id', raw.reply_to_id)
+              .single();
+            replyToMsg = rt ?? null;
+          }
+
+          const msg = { ...raw, profiles: prof, reply_to: replyToMsg };
           setMessages((prev) => prev.some((m) => m.id === msg.id) ? prev : [...prev, msg]);
 
           const curId = profile?.id ?? user?.id;
@@ -177,6 +190,15 @@ export default function ChatRoomPage() {
     setUnreadNew(0);
   }
 
+  function jumpToMessage(id) {
+    const el = msgRefs.current[id];
+    if (!el) { addToast('해당 메시지가 로드되어 있지 않습니다.', 'info'); return; }
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // 잠깐 강조 효과
+    el.classList.add('ring-2', 'ring-brand-500/60', 'rounded-2xl');
+    setTimeout(() => el.classList.remove('ring-2', 'ring-brand-500/60', 'rounded-2xl'), 1200);
+  }
+
   // ─── 클립보드 붙여넣기 ─────────────────────────────────────
   useEffect(() => {
     const handler = (e) => {
@@ -227,12 +249,14 @@ export default function ChatRoomPage() {
         imageUrl,
         isPrivate:  privacyMode,
         emojiColor: myBubbleColor,
+        replyToId:  replyTo?.id || null,
       });
       if (sent) {
         if (sent.profiles?.id) profileCacheRef.current[sent.profiles.id] = sent.profiles;
         setMessages((prev) => prev.some((m) => m.id === sent.id) ? prev : [...prev, sent]);
       }
       setText('');
+      setReplyTo(null);
       inputRef.current?.focus();
     } catch (err) { addToast(`전송 실패: ${err.message}`, 'error'); }
   }
@@ -287,8 +311,11 @@ export default function ChatRoomPage() {
         {messages.map((msg) => (
           <MessageBubble
             key={msg.id}
+            ref={(el) => { if (el) msgRefs.current[msg.id] = el; else delete msgRefs.current[msg.id]; }}
             message={msg}
             isMe={msg.profiles?.id === myId}
+            onReply={(m) => { setReplyTo(m); setTimeout(() => inputRef.current?.focus(), 50); }}
+            onJumpTo={jumpToMessage}
           />
         ))}
         <div ref={bottomRef} />
@@ -303,6 +330,23 @@ export default function ChatRoomPage() {
           NEW {unreadNew}
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
+      )}
+
+      {/* 답장 미리보기 */}
+      {replyTo && (
+        <div className="px-4 pb-1 shrink-0 animate-slide-up">
+          <div className="flex items-center gap-2 bg-zinc-800/80 border border-zinc-700 rounded-xl px-3 py-2">
+            <div className="flex-1 border-l-2 border-brand-500 pl-2 min-w-0">
+              <p className="text-[10px] font-semibold text-brand-400 truncate">{replyTo.profiles?.nickname}</p>
+              <p className="text-xs text-zinc-400 truncate">
+                {replyTo.content || (replyTo.image_url ? '📷 이미지' : '...')}
+              </p>
+            </div>
+            <button onClick={() => setReplyTo(null)} className="shrink-0 text-zinc-500 hover:text-white p-1 transition-colors">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* 이미지 미리보기 */}

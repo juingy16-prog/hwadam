@@ -101,38 +101,41 @@ export async function fetchMessages(roomId, limit = 60, before = null) {
   let query = supabase
     .from('messages')
     .select(`
-      id, content, image_url, is_private, emoji_color, created_at,
-      profiles:sender_id ( id, nickname, avatar_url )
+      id, content, image_url, is_private, emoji_color, created_at, reply_to_id,
+      profiles:sender_id ( id, nickname, avatar_url ),
+      reply_to:reply_to_id ( id, content, image_url, profiles:sender_id ( id, nickname, avatar_url ) )
     `)
     .eq('room_id', roomId)
     .is('deleted_at', null)
-    .order('created_at', { ascending: false })  // 최신 우선
+    .order('created_at', { ascending: false })
     .limit(limit);
 
-  if (before) query = query.lt('created_at', before);  // 이전 메시지 페이지네이션
+  if (before) query = query.lt('created_at', before);
 
   const { data, error } = await query;
   if (error) throw error;
-  return (data ?? []).reverse();  // 화면엔 오래된 순서로 표시
+  return (data ?? []).reverse();
 }
 
 /**
  * 메시지 전송
  */
-export async function sendMessage({ roomId, senderId, content, imageUrl, isPrivate, emojiColor }) {
+export async function sendMessage({ roomId, senderId, content, imageUrl, isPrivate, emojiColor, replyToId }) {
   const { data, error } = await supabase
     .from('messages')
     .insert({
-      room_id:    roomId,
-      sender_id:  senderId,
-      content:    content || null,
-      image_url:  imageUrl || null,
-      is_private: isPrivate ?? false,
+      room_id:     roomId,
+      sender_id:   senderId,
+      content:     content || null,
+      image_url:   imageUrl || null,
+      is_private:  isPrivate ?? false,
       emoji_color: emojiColor || null,
+      reply_to_id: replyToId || null,
     })
     .select(`
-      id, content, image_url, is_private, emoji_color, created_at,
-      profiles:sender_id ( id, nickname, avatar_url )
+      id, content, image_url, is_private, emoji_color, created_at, reply_to_id,
+      profiles:sender_id ( id, nickname, avatar_url ),
+      reply_to:reply_to_id ( id, content, image_url, profiles:sender_id ( id, nickname, avatar_url ) )
     `)
     .single();
 
