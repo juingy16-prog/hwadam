@@ -8,7 +8,7 @@ import {
 import MessageBubble from '../components/MessageBubble';
 import ImageUploader from '../components/ImageUploader';
 import Toast from '../components/Toast';
-import { ArrowLeft, Send, EyeOff, Eye, Bell, BellOff, Users, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Send, EyeOff, Eye, Bell, BellOff, Users, ChevronDown, X } from 'lucide-react';
 import { EMOJI_COLORS } from '../constants/emoji';
 const DEFAULT_MY_COLOR = '#1e3a5f';
 const EMOJI_KEY = 'hwadam-profile-emoji';
